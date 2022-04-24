@@ -1,0 +1,12 @@
+__pycache__
+config.ini
+pyvenv.cfg
+*.pyc
+*.exe
+*.log
+**/Include
+**/Lib
+**/Scripts
+
+
+
