@@ -54,7 +54,7 @@ This guide assumes that you are using a Linux/Mac system and have a web server s
     g. Host - The server's host address.
 1. Run the run.sh script. This will install start a Python virtual environment, install application dependencies, and start the application using the host and port provided in the config.ini file. If using a bash emulator such as MINGW or Git Bash on a Windows system, edit run.sh by following the directions in the comments. Run the script by entering the following in a terminal program:
 
-```./run.sh```
+    ```./run.sh```
 1. Set up a webhook for your organization. This can be done either through the Github Web UI or the API. Make sure that the paylod URL is your server address, followed by "/createRepo". For example, the payload URL could look something like "https://623a-108-51-128-227.ngrok.io/createRepo". Also make sure that the content type is `application/json`, the secret matches the WebhookSecret found in your config.ini file from step #3.e, and the webhook is triggered on "Repositories" type events. You can follow the instructions found here: https://docs.github.com/en/developers/webhooks-and-events/webhooks/creating-webhooks
 1. At this point, the application should be operating. To test, create a new repo in the organization. Verify operation by checking that all of the steps enumerated in the "How Does It Work?" section were completed. To debug, check the Webhooks console in your Organization Settings and view the Recent Deliveries tab. Successful delivery should be marked by a Status 200 code. 
 
