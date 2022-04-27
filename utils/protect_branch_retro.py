@@ -7,9 +7,16 @@
 import configparser
 import requests
 import re
+import os
 import base64
 from requests.auth import HTTPBasicAuth
-from protected_schema import protection_data
+import sys
+
+dir = os.path.dirname( __file__ )
+module_dir = os.path.join(dir, '..' )
+sys.path.append( module_dir )
+import protected_schema
+
 
 # Read values from config.ini
 config = configparser.ConfigParser()
@@ -40,14 +47,13 @@ page_num = int(re.findall(re.escape(pattern).replace(r'\{\}', r'(\S+)'), str(res
 
 for page in range(1, page_num+1):
     response = requests.get(f'{api_url}/{organization}/repos?per_page=1;page={page}', auth=basic)
-    print(response.text)
-    print('****************************************************')
+    if response.status_code != 200:
+        print(response.text)
     repo_list = response.json()
     for repo in repo_list:
-
+        url = 'https://api.github.com/repos'
         repo_name = repo.get('name')
-        print(f"Name: {repo.get('name')}")
-        branches = requests.get(f'{api_url}/{organization}/{repo_name}/branches', auth=basic)
+        branches = requests.get(f'{url}/{organization}/{repo_name}/branches', auth=basic)
         if branches.status_code != 200:
             print(branches.text)
         if not branches.json():
@@ -57,21 +63,21 @@ for page in range(1, page_num+1):
                 "message" : "Initial commit",
                 "content" : encoded_string
             }
-            response = requests.put(f'{api_url}/{organization}/{repo_name}/contents/README.md', auth=basic, json=send_data)
+            response = requests.put(f'{url}/{organization}/{repo_name}/contents/README.md', auth=basic, json=send_data)
             if response.status_code == 201:
-                branches = requests.get(f'{api_url}/{organization}/{repo_name}/branches', auth=basic)
+                branches = requests.get(f'{url}/{organization}/{repo_name}/branches', auth=basic)
             else:
                 print(response.text)
             print("Created README and added to default branch")
 
         default_branch = branches.json()[0]['name']
 
-        protection = requests.put(f'{api_url}/{organization}/{repo_name}/branches/{default_branch}/protection', auth=basic, json=protection_data)
+        protection = requests.put(f'{url}/{organization}/{repo_name}/branches/{default_branch}/protection', auth=basic, json=protected_schema.protection_data)
 
         if protection.status_code != 200:
             print(protection.text)
 
-        sig_protection = requests.post(f'{api_url}/{organization}/{repo_name}/branches/{default_branch}/protection/required_signatures', auth=basic)
+        sig_protection = requests.post(f'{url}/{organization}/{repo_name}/branches/{default_branch}/protection/required_signatures', auth=basic)
         if sig_protection.status_code != 200:
             print(sig_protection.text)
 
@@ -91,9 +97,6 @@ for page in range(1, page_num+1):
                         7) required_conversation_resolution - True - Requires all conversations on code to be resolved before a pull request
                         8) Require signatures for commits"""
         }
-        issue = requests.post(f'{api_url}/{organization}/{repo_name}/issues', auth=basic, json=issue_data)
+        issue = requests.post(f'{url}/{organization}/{repo_name}/issues', auth=basic, json=issue_data)
         if issue.status_code != 201:
             print(issue.text)
-
-# print(response.headers)
-# print(response.text)
