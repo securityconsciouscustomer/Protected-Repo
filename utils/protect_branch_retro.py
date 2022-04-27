@@ -46,7 +46,7 @@ pattern = '&page={}>; rel="last"'
 page_num = int(re.findall(re.escape(pattern).replace(r'\{\}', r'(\S+)'), str(response.headers))[0])
 
 for page in range(1, page_num+1):
-    response = requests.get(f'{api_url}/{organization}/repos?per_page=1;page={page}', auth=basic)
+    response = requests.get(f'{api_url}/{organization}/repos?page={page}', auth=basic)
     if response.status_code != 200:
         print(response.text)
     repo_list = response.json()
